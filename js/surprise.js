@@ -6,7 +6,7 @@ $(document).ready(function() {
     // 1. Create the audio object
     const surpriseSong = document.createElement("audio");
     surpriseSong.src = "mp3/Nectar/14 Mr. Hollywood.mp3";
-    surpriseSong.currentTime = 32;
+    surpriseSong.currentTime = 32000;
     surpriseSong.loop = true;
 
     /** * 2. INITIAL SETUP 
@@ -19,7 +19,7 @@ $(document).ready(function() {
         <div id="surpriseContent" style="display: none;">
             <img src="/img/joji.jpg" alt="Surprise Image">
             <h3>What do you think Ms. Hollywood?</h3>
-            <p>📍 Location: Moody Center ATX - Austin, TX</p>
+            <p>📍 Location: Moody Center ATX - Austin, TX <br> Date: July 6, 2026</p>
             <p>Won't you?</p>
             <button id="closeSurprise">Close</button>
         </div>
