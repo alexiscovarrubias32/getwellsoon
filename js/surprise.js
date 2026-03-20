@@ -1,18 +1,19 @@
 $(document).ready(function() {
     const surprise = $("#surpriseContainer");
-    const rightCol = $(".right-column"); // Kept from your previous version
     let isOpen = false;
 
-    // 1. Create the audio object
+    // --- CREATE AUDIO ---
     const surpriseSong = document.createElement("audio");
     surpriseSong.src = "mp3/Nectar/14 Mr. Hollywood.mp3";
-    surpriseSong.currentTime = 32000;
     surpriseSong.loop = true;
+    surpriseSong.volume = 1; // start at full volume
 
-    /** * 2. INITIAL SETUP 
-     * We wrap the initial text in a span so we can hide/show it.
-     * We also append the hidden content immediately so it's ready in the DOM.
-     */
+    // Ensure metadata is loaded before seeking
+    surpriseSong.addEventListener("loadedmetadata", function() {
+        surpriseSong.currentTime = 32;
+    });
+
+    // --- INITIAL UI SETUP ---
     surprise.html('<span id="surprisePrompt">Click for a surprise!!!!</span>');
 
     surprise.append(`
@@ -28,34 +29,51 @@ $(document).ready(function() {
     // --- OPEN SURPRISE ---
     surprise.click(function() {
         if (!isOpen) {
-            // FIX: Hide the prompt instead of removing it
             $("#surprisePrompt").hide();
-
             surprise.addClass("surprise-open");
 
             setTimeout(() => {
-                // Ensure content fades in and stays centered
                 $("#surpriseContent").fadeIn(300).css("display", "flex");
-            }, 500); // matches your CSS transition
+            }, 500);
 
+            // Always restart at 32s
+            surpriseSong.pause();
+            surpriseSong.currentTime = 32;
+            surpriseSong.volume = 1; // reset volume in case it was faded out
             surpriseSong.play();
+
             isOpen = true;
         }
     });
 
+    // --- FADE OUT FUNCTION ---
+    function fadeOutAudio(audio, duration = 800) {
+        const steps = 20;
+        const stepTime = duration / steps;
+        const volumeStep = audio.volume / steps;
+
+        let fade = setInterval(() => {
+            if (audio.volume > volumeStep) {
+                audio.volume -= volumeStep;
+            } else {
+                audio.volume = 0;
+                audio.pause();
+                clearInterval(fade);
+            }
+        }, stepTime);
+    }
+
     // --- CLOSE SURPRISE ---
     $(document).on("click", "#closeSurprise", function(e) {
-        // Prevents the click from "bubbling" up and re-opening the box
         e.stopPropagation();
 
         $("#surpriseContent").fadeOut(300, function() {
             surprise.removeClass("surprise-open");
-
-            // FIX: Bring the prompt back when the box shrinks
             $("#surprisePrompt").show();
 
-            surpriseSong.pause();
-            surpriseSong.currentTime = 30; // Resets to your preferred start point
+            // 🎧 Smooth fade out instead of instant stop
+            fadeOutAudio(surpriseSong, 800);
+
             isOpen = false;
         });
     });
